@@ -61,39 +61,43 @@ func GetTeachersFromDb(ctx context.Context, sortOptions bson.D, filter bson.M) (
 		return nil, utils.ErrorHandler(err, "Internal Error")
 	}
 	defer cursor.Close(ctx)
-
-	teachers, err := decodeTeachers(ctx, cursor)
+	
+	teachers, err := decodeEntities(ctx, cursor, func() *pb.Teacher {return &pb.Teacher{}}, newModel)
 	if err != nil {
 		return nil, err
 	}
 	return teachers, nil
 }
 
-func decodeTeachers(ctx context.Context, cursor *mongo.Cursor) ([]*pb.Teacher, error) {
-	var teachers []*pb.Teacher
-	for cursor.Next(ctx) {
-		var teacher models.Teacher
-		err := cursor.Decode(&teacher)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "Internal Error")
-		}
-		pbTeacher := &pb.Teacher{}
-		modelVal := reflect.ValueOf(teacher)
-		pbVal := reflect.ValueOf(pbTeacher).Elem()
-
-		for i := 0; i < modelVal.NumField(); i++ {
-			modelField := modelVal.Field(i)
-			modelFieldName := modelField.Type().Field(i).Name
-
-			pbField := pbVal.FieldByName(modelFieldName)
-			if pbField.IsValid() && pbField.CanSet() {
-				pbField.Set(modelField)
-			}
-		}
-		teachers = append(teachers, pbTeacher)
-	}
-	return teachers, nil
+func newModel() *models.Teacher {
+	return &models.Teacher{}
 }
+
+// func decodeTeachers(ctx context.Context, cursor *mongo.Cursor) ([]*pb.Teacher, error) {
+// 	var teachers []*pb.Teacher
+// 	for cursor.Next(ctx) {
+// 		var teacher models.Teacher
+// 		err := cursor.Decode(&teacher)
+// 		if err != nil {
+// 			return nil, utils.ErrorHandler(err, "Internal Error")
+// 		}
+// 		pbTeacher := &pb.Teacher{}
+// 		modelVal := reflect.ValueOf(teacher)
+// 		pbVal := reflect.ValueOf(pbTeacher).Elem()
+
+// 		for i := 0; i < modelVal.NumField(); i++ {
+// 			modelField := modelVal.Field(i)
+// 			modelFieldName := modelField.Type().Field(i).Name
+
+// 			pbField := pbVal.FieldByName(modelFieldName)
+// 			if pbField.IsValid() && pbField.CanSet() {
+// 				pbField.Set(modelField)
+// 			}
+// 		}
+// 		teachers = append(teachers, pbTeacher)
+// 	}
+// 	return teachers, nil
+// }
 
 func mapModelTeacherToPb(teacher *models.Teacher) *pb.Teacher {
 	pbTeacher := &pb.Teacher{}
