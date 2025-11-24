@@ -5,6 +5,7 @@ import (
 	"grpcapi/internals/models"
 	"grpcapi/pkg/utils"
 	pb "grpcapi/proto/gen"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -19,7 +20,15 @@ func AddExecsToDb(ctx context.Context, execsFromReq []*pb.Exec) ([]*pb.Exec, err
 	newExecs := make([]*models.Exec, len(execsFromReq))
 	for i, pbExec := range execsFromReq {
 		newExecs[i] = mapPbExecToModelExec(pbExec)
+		hashedPassword, err := utils.HashPassword(newExecs[i].Password)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "internal error")
+		}
 
+		newExecs[i].Password = hashedPassword
+		currentTime := time.Now().Format(time.RFC3339)
+		newExecs[i].UserCreatedAt = currentTime
+		newExecs[i].InactiveStatus = false
 	}
 
 	var addedExecs []*pb.Exec

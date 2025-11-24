@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"grpcapi/internals/api/handlers"
-	"grpcapi/internals/repositories/mongodb"
 	pb "grpcapi/proto/gen"
 	"log"
 	"net"
@@ -15,8 +14,6 @@ import (
 )
 
 func main() {
-
-	mongodb.CreateMongoClient()
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file:", err)
