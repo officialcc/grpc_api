@@ -44,7 +44,7 @@ func AddTeachersToDb(ctx context.Context, teachersFromReq []*pb.Teacher) ([]*pb.
 	return addedTeachers, nil
 }
 
-func GetTeachersFromDb(ctx context.Context, sortOptions bson.D, filter bson.M) ([]*pb.Teacher, error) {
+func GetTeachersFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Teacher, error) {
 	client, err := CreateMongoClient()
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Internal error")

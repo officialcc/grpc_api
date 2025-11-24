@@ -27,8 +27,8 @@ message StudentIds {
 message GetStudentsRequest {
     Student student = 1;
     repeated SortField sort_by = 2;
-    int32 page_number = 3;
-    int32 page_size = 4;
+    uint32 page_number = 3;
+    uint32 page_size = 4;
 }
 
 message SortField {

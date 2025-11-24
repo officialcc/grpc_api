@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"grpcapi/internals/models"
 	"grpcapi/internals/repositories/mongodb"
 	pb "grpcapi/proto/gen"
 
@@ -22,4 +23,32 @@ func (s *Server) AddStudents(ctx context.Context, req *pb.Students) (*pb.Student
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.Students{Students: addedStudents}, nil
+}
+
+func (s *Server) GetStudents(ctx context.Context, req *pb.GetStudentsRequest) (*pb.Students, error) {
+	// Filtering - Getting the filters from the request -> Another function
+	filter, err := buildFilter(req.Student, &models.Student{})
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	// Sorting - Getting the sort options from the request -> Another function
+	sortOptions := buildSortOptions(req.GetSortBy())
+	// Access the database to fetch data - Another function
+
+	pageNumber := req.GetPageNumber()
+	pageSize := req.GetPageSize()
+
+	if pageNumber < 1 {
+		pageNumber = 1
+	}
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	
+	students, err := mongodb.GetStudentsFromDb(ctx, sortOptions, filter, pageNumber, pageSize)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.Students{Students: students}, nil
 }
