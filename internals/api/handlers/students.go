@@ -45,10 +45,37 @@ func (s *Server) GetStudents(ctx context.Context, req *pb.GetStudentsRequest) (*
 	if pageSize < 1 {
 		pageSize = 10
 	}
-	
+
 	students, err := mongodb.GetStudentsFromDb(ctx, sortOptions, filter, pageNumber, pageSize)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.Students{Students: students}, nil
+}
+
+func (s *Server) UpdateStudents(ctx context.Context, req *pb.Students) (*pb.Students, error) {
+	updatedStudents, err := mongodb.ModifyStudentsInDb(ctx, req.Students)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.Students{Students: updatedStudents}, nil
+}
+
+func (s *Server) DeleteStudents(ctx context.Context, req *pb.StudentIds) (*pb.DeleteStudentsConfirmation, error) {
+	ids := req.GetIds()
+	var studentIdsToDelete []string
+	for _, student := range ids {
+		studentIdsToDelete = append(studentIdsToDelete, student.Id)
+	}
+
+	deletedIds, err := mongodb.DeleteStudentsFromDb(ctx, studentIdsToDelete)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &pb.DeleteStudentsConfirmation{
+		Status:     "Students successfully deleted",
+		DeletedIds: deletedIds,
+	}, nil
 }
