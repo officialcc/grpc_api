@@ -222,3 +222,28 @@ func UpdatePasswordInDb(ctx context.Context, req *pb.UpdatePasswordRequest) (str
 	}
 	return user.Username, user.Role, nil
 }
+
+func DeactivateUserInDb(ctx context.Context, ids []string) (*mongo.UpdateResult, error) {
+	client, err := CreateMongoClient()
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+	defer client.Disconnect(ctx)
+
+	var objectIds []primitive.ObjectID
+	for _, id := range ids {
+		objId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "invalid Id")
+		}
+		objectIds = append(objectIds, objId)
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": objectIds}}
+	update := bson.M{"$set": bson.M{"inactive_status": true}}
+	result, err := client.Database("school").Collection("execs").UpdateMany(ctx, filter, update)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "failed to deactivate users")
+	}
+	return result, nil
+}

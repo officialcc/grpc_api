@@ -73,12 +73,8 @@ message DeleteExecsConfirmation {
     repeated string deleted_ids = 2;
 }
 
-message ExecId {
-    string id = 1;
-}
-
 message ExecIds {
-    repeated ExecId ids = 1;
+    repeated string ids = 1;
 }
 
 message GetExecsRequest {

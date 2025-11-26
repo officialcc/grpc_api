@@ -54,13 +54,13 @@ func (s *Server) UpdateExecs(ctx context.Context, req *pb.Execs) (*pb.Execs, err
 }
 
 func (s *Server) DeleteExecs(ctx context.Context, req *pb.ExecIds) (*pb.DeleteExecsConfirmation, error) {
-	ids := req.GetIds()
-	var execIdsToDelete []string
-	for _, exec := range ids {
-		execIdsToDelete = append(execIdsToDelete, exec.Id)
-	}
+	// ids := req.GetIds()
+	// var execIdsToDelete []string
+	// for _, exec := range ids {
+	// 	execIdsToDelete = append(execIdsToDelete, exec.Id)
+	// }
 
-	deletedIds, err := mongodb.DeleteExecsFromDb(ctx, execIdsToDelete)
+	deletedIds, err := mongodb.DeleteExecsFromDb(ctx, req.GetIds())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -109,5 +109,16 @@ func (s *Server) UpdatePassword(ctx context.Context, req *pb.UpdatePasswordReque
 	return &pb.UpdatePasswordResponse{
 		PasswordUpdated: true,
 		Token:           token,
+	}, nil
+}
+
+func (s *Server) DeactivateUser(ctx context.Context, req *pb.ExecIds) (*pb.Confirmation, error) {
+	result, err := mongodb.DeactivateUserInDb(ctx, req.GetIds())
+	if err != nil {
+		return nil, err
+	}
+
+	return &pb.Confirmation{
+		Confirmation: result.ModifiedCount > 0,
 	}, nil
 }
