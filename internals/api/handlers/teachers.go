@@ -4,12 +4,8 @@ import (
 	"context"
 	"grpcapi/internals/models"
 	"grpcapi/internals/repositories/mongodb"
-	"grpcapi/pkg/utils"
 	pb "grpcapi/proto/gen"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -74,33 +70,24 @@ func (s *Server) DeleteTeachers(ctx context.Context, req *pb.TeacherIds) (*pb.De
 	}, nil
 }
 
-func (*Server) GetStudentsbyClassTeacher(ctx context.Context, req *pb.TeacherId) (*pb.Students, error) {
+func (s *Server) GetStudentsByClassTeacher(ctx context.Context, req *pb.TeacherId) (*pb.Students, error) {
 	teacherId := req.GetId()
 
-	client, err := mongodb.CreateMongoClient()
+	students, err := mongodb.GetStudentsByTeacherIdFromDb(ctx, teacherId)
 	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-	defer client.Disconnect(ctx)
-
-	objId, err := primitive.ObjectIDFromHex(teacherId)
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "Invalid Teacher ID")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var teacher models.Teacher
-	err = client.Database("school").Collection("teachers").FindOne(ctx, bson.M{"_id": objId}).Decode(&teacher)
+	return &pb.Students{Students: students}, nil
+}
+
+func (s *Server) GetStudentCountByClassTeacher(ctx context.Context, req *pb.TeacherId) (*pb.StudentCount, error) {
+	teacherId := req.GetId()
+
+	count, err := mongodb.GetStudentCountByTeacherIdFromDb(ctx, teacherId)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, utils.ErrorHandler(err, "teacher not found")
-		}
-		return nil, utils.ErrorHandler(err, "internal error")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	cursor, err := client.Database("school").Collection("students").Find(ctx, bson.M{"class": teacher.Class})
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-	defer cursor.Close(ctx)
-	
+	return &pb.StudentCount{Status: true, StudentCount: int32(count)}, nil
 }

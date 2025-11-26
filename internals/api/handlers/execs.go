@@ -4,6 +4,7 @@ import (
 	"context"
 	"grpcapi/internals/models"
 	"grpcapi/internals/repositories/mongodb"
+	"grpcapi/pkg/utils"
 	pb "grpcapi/proto/gen"
 
 	"google.golang.org/grpc/codes"
@@ -67,5 +68,46 @@ func (s *Server) DeleteExecs(ctx context.Context, req *pb.ExecIds) (*pb.DeleteEx
 	return &pb.DeleteExecsConfirmation{
 		Status:     "Execs successfully deleted",
 		DeletedIds: deletedIds,
+	}, nil
+}
+
+func (s *Server) Login(ctx context.Context, req *pb.ExecLoginRequest) (*pb.ExecLoginResponse, error) {
+
+	exec, err := mongodb.GetUserByUsername(ctx, req.GetUsername())
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	if exec.InactiveStatus {
+		return nil, status.Error(codes.Unauthenticated, "Account is inactive")
+	}
+
+	err = utils.VerifyPassword(req.GetPassword(), exec.Password)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Incorrect username/password")
+	}
+
+	tokenString, err := utils.SignToken(exec.Id, exec.Username, exec.Role)
+	if err != nil {
+		return nil, status.Error(codes.Unauthenticated, "Could not create login token")
+	}
+
+	return &pb.ExecLoginResponse{Status: true, Token: tokenString}, nil
+}
+
+func (s *Server) UpdatePassword(ctx context.Context, req *pb.UpdatePasswordRequest) (*pb.UpdatePasswordResponse, error) {
+	username, userRole, err := mongodb.UpdatePasswordInDb(ctx, req)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	token, err := utils.SignToken(req.Id, username, userRole)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
+	return &pb.UpdatePasswordResponse{
+		PasswordUpdated: true,
+		Token:           token,
 	}, nil
 }
