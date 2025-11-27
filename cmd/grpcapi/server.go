@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"grpcapi/internals/api/handlers"
+	"grpcapi/internals/api/interceptors"
 	pb "grpcapi/proto/gen"
 	"log"
 	"net"
@@ -19,7 +20,7 @@ func main() {
 		log.Fatal("Error loading .env file:", err)
 	}
 
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors.ResponseTimeInterceptor))
 
 	pb.RegisterExecsServiceServer(s, &handlers.Server{})
 	pb.RegisterStudentsServiceServer(s, &handlers.Server{})
