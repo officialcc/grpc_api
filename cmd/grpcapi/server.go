@@ -22,7 +22,7 @@ func main() {
 	}
 
 	r := interceptors.NewRateLimiter(5, time.Minute)
-	s := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors.ResponseTimeInterceptor, r.RateLimitInterceptor, interceptors.AuthenticationInterceptor))
+	s := grpc.NewServer(grpc.ChainUnaryInterceptor(r.RateLimitInterceptor, interceptors.ResponseTimeInterceptor, interceptors.AuthenticationInterceptor))
 
 	pb.RegisterExecsServiceServer(s, &handlers.Server{})
 	pb.RegisterStudentsServiceServer(s, &handlers.Server{})
