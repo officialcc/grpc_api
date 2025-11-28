@@ -39,7 +39,7 @@ func AuthenticationInterceptor(ctx context.Context, req interface{}, info *grpc.
 		return nil, status.Errorf(codes.Unauthenticated, "authorization token unavailable")
 	}
 
-	tokenStr := strings.TrimPrefix(authHeader[0], "Bearer")
+	tokenStr := strings.TrimPrefix(authHeader[0], "Bearer ")
 	tokenStr = strings.TrimSpace(tokenStr)
 
 	ok = utils.JwtStore.IsLoggedOut(tokenStr)

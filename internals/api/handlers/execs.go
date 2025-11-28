@@ -180,7 +180,7 @@ func (s *Server) Logout(ctx context.Context, req *pb.EmptyRequest) (*pb.ExecLogo
 		return nil, status.Error(codes.Unauthenticated, "Unauthorized Access")
 	}
 
-	token := strings.TrimPrefix(val[0], "Bearer")
+	token := strings.TrimPrefix(val[0], "Bearer ")
 
 	if token == "" {
 		return nil, status.Error(codes.Unauthenticated, "Unauthorized Access")
