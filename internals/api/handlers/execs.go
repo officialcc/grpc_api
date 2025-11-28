@@ -19,6 +19,10 @@ import (
 )
 
 func (s *Server) AddExecs(ctx context.Context, req *pb.Execs) (*pb.Execs, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	for _, exec := range req.GetExecs() {
 		if exec.Id != "" {
@@ -34,6 +38,14 @@ func (s *Server) AddExecs(ctx context.Context, req *pb.Execs) (*pb.Execs, error)
 }
 
 func (s *Server) GetExecs(ctx context.Context, req *pb.GetExecsRequest) (*pb.Execs, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	err = utils.AuthorizeUser(ctx, "admin", "manager")
+	if err != nil {
+		return nil, utils.ErrorHandler(err, err.Error())
+	}
 	// Filtering - Getting the filters from the request -> Another function
 	filter, err := buildFilter(req.Exec, &models.Exec{})
 	if err != nil {
@@ -52,6 +64,10 @@ func (s *Server) GetExecs(ctx context.Context, req *pb.GetExecsRequest) (*pb.Exe
 }
 
 func (s *Server) UpdateExecs(ctx context.Context, req *pb.Execs) (*pb.Execs, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 	updatedExecs, err := mongodb.ModifyExecsInDb(ctx, req.Execs)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -79,6 +95,10 @@ func (s *Server) DeleteExecs(ctx context.Context, req *pb.ExecIds) (*pb.DeleteEx
 }
 
 func (s *Server) Login(ctx context.Context, req *pb.ExecLoginRequest) (*pb.ExecLoginResponse, error) {
+	err := req.Validate()
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
 
 	exec, err := mongodb.GetUserByUsername(ctx, req.GetUsername())
 	if err != nil {

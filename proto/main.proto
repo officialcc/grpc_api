@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-// import "validate/validate.proto";
+import "validate/validate.proto";
 import "students.proto";
 
 package main;
@@ -27,11 +27,11 @@ message DeleteTeachersConfirmation {
 }
 
 message TeacherId {
-    string id = 1;
+    string id = 1 [(validate.rules).string = {min_len: 24, max_len: 24, pattern: "^[a-fA-F0-9]{24}$"}];
 }
 
 message TeacherIds {
-    repeated TeacherId ids = 1;
+    repeated TeacherId ids = 1 [(validate.rules).repeated = {min_items: 1}];
 }
 
 message GetTeachersRequest {
@@ -41,11 +41,32 @@ message GetTeachersRequest {
 
 message Teacher {
     string id = 1;
-    string first_name = 2;
-    string last_name = 3;
-    string email = 4;
-    string class = 5;
-    string subject = 6;
+
+    // first_name must not contain special characters but can contain spaces
+    string first_name = 2 [(validate.rules).string = {
+        pattern: "^[A-Za-z ]*$"
+    }];
+
+    // last_name must not contain special characters but can contain spaces
+    string last_name = 3 [(validate.rules).string = {
+        pattern: "^[A-Za-z ]*$"
+    }];
+    
+    // email must be a valid email address
+    // string email = 4;
+    string email = 4 [(validate.rules).string = {
+        email: true
+    }];
+
+    // class must not contain special characters but can contain spaces
+    string class = 5 [(validate.rules).string = {
+        pattern: "^[A-Za-z0-9 ]*$"
+    }];
+    
+    // subject must not contain special characters but can contain spaces
+    string subject = 6 [(validate.rules).string = {
+        pattern: "^[A-Za-z0-9 ]*$"
+    }];
 }
 
 message Teachers {

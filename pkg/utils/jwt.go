@@ -8,8 +8,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-type ContextKey string
-
 func SignToken(userId string, username, role string) (string, error) {
 	jwtSecret := os.Getenv("JWT_SECRET")
 	jwtExpiresIn := os.Getenv("JWT_EXPIRES_IN")

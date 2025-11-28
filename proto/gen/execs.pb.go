@@ -7,6 +7,7 @@
 package grpcapipb
 
 import (
+	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -617,8 +618,6 @@ type GetExecsRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Exec          *Exec                  `protobuf:"bytes,1,opt,name=exec,proto3" json:"exec,omitempty"`
 	SortBy        []*SortField           `protobuf:"bytes,2,rep,name=sort_by,json=sortBy,proto3" json:"sort_by,omitempty"`
-	PageNumber    int32                  `protobuf:"varint,3,opt,name=page_number,json=pageNumber,proto3" json:"page_number,omitempty"`
-	PageSize      int32                  `protobuf:"varint,4,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -665,20 +664,6 @@ func (x *GetExecsRequest) GetSortBy() []*SortField {
 		return x.SortBy
 	}
 	return nil
-}
-
-func (x *GetExecsRequest) GetPageNumber() int32 {
-	if x != nil {
-		return x.PageNumber
-	}
-	return 0
-}
-
-func (x *GetExecsRequest) GetPageSize() int32 {
-	if x != nil {
-		return x.PageSize
-	}
-	return 0
 }
 
 type Exec struct {
@@ -861,7 +846,7 @@ var File_execs_proto protoreflect.FileDescriptor
 
 const file_execs_proto_rawDesc = "" +
 	"\n" +
-	"\vexecs.proto\x12\x04main\x1a\x0estudents.proto\"V\n" +
+	"\vexecs.proto\x12\x04main\x1a\x0estudents.proto\x1a\x17validate/validate.proto\"V\n" +
 	"\x16ForgotPasswordResponse\x12\"\n" +
 	"\fconfirmation\x18\x01 \x01(\bR\fconfirmation\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\"-\n" +
@@ -887,31 +872,28 @@ const file_execs_proto_rawDesc = "" +
 	"\fEmptyRequest\"A\n" +
 	"\x11ExecLoginResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\bR\x06status\x12\x14\n" +
-	"\x05token\x18\x02 \x01(\tR\x05token\"J\n" +
-	"\x10ExecLoginRequest\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"R\n" +
+	"\x05token\x18\x02 \x01(\tR\x05token\"\x8e\x01\n" +
+	"\x10ExecLoginRequest\x12<\n" +
+	"\busername\x18\x01 \x01(\tB \xfaB\x1dr\x1b\x10\x062\x14^[a-zA-Z0-9@.#$+-]+$\xd0\x01\x00R\busername\x12<\n" +
+	"\bpassword\x18\x02 \x01(\tB \xfaB\x1dr\x1b\x10\t2\x14^[a-zA-Z0-9@.#$+-]+$\xd0\x01\x00R\bpassword\"R\n" +
 	"\x17DeleteExecsConfirmation\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x1f\n" +
 	"\vdeleted_ids\x18\x02 \x03(\tR\n" +
 	"deletedIds\"\x1b\n" +
 	"\aExecIds\x12\x10\n" +
-	"\x03ids\x18\x01 \x03(\tR\x03ids\"\x99\x01\n" +
+	"\x03ids\x18\x01 \x03(\tR\x03ids\"[\n" +
 	"\x0fGetExecsRequest\x12\x1e\n" +
 	"\x04exec\x18\x01 \x01(\v2\n" +
 	".main.ExecR\x04exec\x12(\n" +
-	"\asort_by\x18\x02 \x03(\v2\x0f.main.SortFieldR\x06sortBy\x12\x1f\n" +
-	"\vpage_number\x18\x03 \x01(\x05R\n" +
-	"pageNumber\x12\x1b\n" +
-	"\tpage_size\x18\x04 \x01(\x05R\bpageSize\"\x9d\x03\n" +
+	"\asort_by\x18\x02 \x03(\v2\x0f.main.SortFieldR\x06sortBy\"\x92\x04\n" +
 	"\x04Exec\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1d\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x124\n" +
 	"\n" +
-	"first_name\x18\x02 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\x14\n" +
-	"\x05email\x18\x04 \x01(\tR\x05email\x12\x1a\n" +
-	"\busername\x18\x05 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x06 \x01(\tR\bpassword\x12.\n" +
+	"first_name\x18\x02 \x01(\tB\x15\xfaB\x12r\x10\x10\x012\f^[a-zA-Z ]+$R\tfirstName\x122\n" +
+	"\tlast_name\x18\x03 \x01(\tB\x15\xfaB\x12r\x10\x10\x012\f^[a-zA-Z ]+$R\blastName\x12\x1d\n" +
+	"\x05email\x18\x04 \x01(\tB\a\xfaB\x04r\x02`\x01R\x05email\x129\n" +
+	"\busername\x18\x05 \x01(\tB\x1d\xfaB\x1ar\x18\x10\x062\x14^[a-zA-Z0-9@.#$+-]+$R\busername\x129\n" +
+	"\bpassword\x18\x06 \x01(\tB\x1d\xfaB\x1ar\x18\x10\t2\x14^[a-zA-Z0-9@.#$+-]+$R\bpassword\x12.\n" +
 	"\x13password_changed_at\x18\a \x01(\tR\x11passwordChangedAt\x12&\n" +
 	"\x0fuser_created_at\x18\b \x01(\tR\ruserCreatedAt\x120\n" +
 	"\x14password_reset_token\x18\t \x01(\tR\x12passwordResetToken\x124\n" +

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 import "students.proto";
+import "validate/validate.proto";
 
 package main;
 
@@ -19,8 +20,6 @@ service ExecsService {
     rpc ForgotPassword (ForgotPasswordRequest) returns (ForgotPasswordResponse);
     rpc DeactivateUser (ExecIds) returns (Confirmation);
 }
-
-
 
 message ForgotPasswordResponse {
     bool confirmation = 1;
@@ -64,8 +63,16 @@ message ExecLoginResponse {
 }
 
 message ExecLoginRequest {
-    string username = 1;
-    string password = 2;
+    string username = 1 [(validate.rules).string = {
+        min_len: 6,
+        pattern: "^[a-zA-Z0-9@.#$+-]+$",
+        ignore_empty: false
+    }];
+    string password = 2 [(validate.rules).string = {
+        min_len: 9,
+        pattern: "^[a-zA-Z0-9@.#$+-]+$",
+        ignore_empty: false
+    }];
 }
 
 message DeleteExecsConfirmation {
@@ -80,17 +87,17 @@ message ExecIds {
 message GetExecsRequest {
     Exec exec = 1;
     repeated SortField sort_by = 2;
-    int32 page_number = 3;
-    int32 page_size = 4;
 }
+    // int32 page_number = 3;
+    // int32 page_size = 4;
 
 message Exec {
     string id = 1;
-    string first_name = 2;
-    string last_name = 3;
-    string email = 4;
-    string username = 5;
-    string password = 6;
+    string first_name = 2 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z ]+$"}];
+    string last_name = 3 [(validate.rules).string = {min_len: 1, pattern: "^[a-zA-Z ]+$"}];
+    string email = 4 [(validate.rules).string = {email: true}];
+    string username = 5 [(validate.rules).string = {min_len: 6, pattern: "^[a-zA-Z0-9@.#$+-]+$"}];
+    string password = 6 [(validate.rules).string = {min_len: 9,pattern: "^[a-zA-Z0-9@.#$+-]+$"}];
     string password_changed_at = 7;
     string user_created_at = 8;
     string password_reset_token = 9;
