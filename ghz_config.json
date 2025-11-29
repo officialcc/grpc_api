@@ -1,0 +1,17 @@
+{
+    "proto": "/home/colin/Projects/grpc_api/cert/grpc_cert/students.proto",
+    "call": "main.StudentsService.GetStudents",
+    "concurrency": 100,
+    "data": {
+        "page_number": 1,
+        "page_size": 300
+    },
+    "max-duration": "20s",
+    "host": "localhost:50051",
+    "cert": "/home/colin/Projects/grpc_api/cert/grpc_cert/cert.pem",
+    "key": "/home/colin/Projects/grpc_api/cert/grpc_cert/key.pem",
+    "cacert": "/home/colin/Projects/grpc_api/cert/grpc_cert/cert.pem",
+    "metadata": {
+        "authorization": "Bearer <token>"
+    }
+}
